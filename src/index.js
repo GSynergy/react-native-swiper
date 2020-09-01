@@ -14,6 +14,7 @@ import {
   Platform,
   ActivityIndicator
 } from 'react-native'
+import ViewPagerAndroid from '@react-native-community/viewpager'
 
 /**
  * Default styles
@@ -321,10 +322,10 @@ export default class extends Component {
     // related to https://github.com/leecade/react-native-swiper/issues/570
     // contentOffset is not working in react 0.48.x so we need to use scrollTo
     // to emulate offset.
-    if(this.state.total > 1) {
+    if (this.state.total > 1) {
       this.scrollView.scrollTo({ ...offset, animated: false })
     }
-	
+
     if (this.initialRender) {
       this.initialRender = false
     }
@@ -350,15 +351,15 @@ export default class extends Component {
           } else if (this.state.index === this.state.total - 1) {
             this.props.horizontal === false
               ? this.scrollView.scrollTo({
-                  x: 0,
-                  y: this.state.height * this.state.total,
-                  animated: false
-                })
+                x: 0,
+                y: this.state.height * this.state.total,
+                animated: false
+              })
               : this.scrollView.scrollTo({
-                  x: this.state.width * this.state.total,
-                  y: 0,
-                  animated: false
-                })
+                x: this.state.width * this.state.total,
+                y: 0,
+                animated: false
+              })
           }
         }
       },
@@ -768,9 +769,27 @@ export default class extends Component {
     }
   }
 
+
   renderScrollView = pages => {
+    if (Platform.OS === 'ios') {
+      return (
+        <ScrollView
+          ref={this.refScrollView}
+          {...this.props}
+          {...this.scrollViewPropOverrides()}
+          contentContainerStyle={[styles.wrapperIOS, this.props.style]}
+          contentOffset={this.state.offset}
+          onScrollBeginDrag={this.onScrollBegin}
+          onMomentumScrollEnd={this.onScrollEnd}
+          onScrollEndDrag={this.onScrollEndDrag}
+          style={this.props.scrollViewStyle}
+        >
+          {pages}
+        </ScrollView>
+      )
+    }
     return (
-      <ScrollView
+      <ViewPagerAndroid
         ref={this.refScrollView}
         {...this.props}
         {...this.scrollViewPropOverrides()}
@@ -782,9 +801,10 @@ export default class extends Component {
         style={this.props.scrollViewStyle}
       >
         {pages}
-      </ScrollView>
+      </ViewPagerAndroid>
     )
   }
+
 
   /**
    * Default render
