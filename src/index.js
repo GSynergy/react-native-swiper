@@ -190,6 +190,7 @@ export default class extends Component {
    */
   initialRender = true
 
+  previousIndex = null
   /**
    * autoplay timer
    * @type {null}
@@ -217,8 +218,14 @@ export default class extends Component {
 
   UNSAFE_componentWillUpdate(nextProps, nextState) {
     // If the index has changed, we notify the parent via the onIndexChanged callback
-    if (this.state.index !== nextState.index)
-      this.props.onIndexChanged(nextState.index)
+    if (this.state.index !== nextState.index) {
+      this.previousIndex = this.state.index;
+      this.props.onIndexChanged(nextState.index);
+      if (this.state.index != nextProps.index && Platform.OS === "android") {
+        console.log(" inside componentDidUpdate", this.state.index);
+        this.scrollView && this.scrollView.setPage(nextState.index);
+      }
+    }
   }
 
   componentDidUpdate(prevProps) {
@@ -480,7 +487,15 @@ export default class extends Component {
     // Note: if touch very very quickly and continuous,
     // the variation of `index` more than 1.
     // parseInt() ensures it's always an integer
-    index = parseInt(index + Math.round(diff / step))
+    if (Platform.OS === "android") {
+      if (Math.round(diff / step) < -1) {
+        index = parseInt(this.previousIndex + Math.round(diff / step))
+      } else {
+        index = parseInt(index + Math.round(diff / step))
+      }
+    } else {
+      index = parseInt(index + Math.round(diff / step))
+    }
 
     if (this.props.loop) {
       if (index <= -1) {
@@ -840,7 +855,7 @@ export default class extends Component {
       }
 
       pages = pages.map((page, i) => {
-        if (loadMinimal) {
+        if (loadMinimal && Platform.OS === "ios") {
           if (
             (i >= index + loopVal - loadMinimalSize &&
               i <= index + loopVal + loadMinimalSize) ||
