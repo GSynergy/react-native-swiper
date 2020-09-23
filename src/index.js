@@ -222,7 +222,6 @@ export default class extends Component {
       this.previousIndex = this.state.index;
       this.props.onIndexChanged(nextState.index);
       if (this.state.index != nextProps.index && Platform.OS === "android") {
-        console.log(" inside componentDidUpdate", this.state.index);
         this.scrollView && this.scrollView.setPage(nextState.index);
       }
     }
