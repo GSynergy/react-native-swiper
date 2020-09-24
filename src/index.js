@@ -492,6 +492,8 @@ export default class extends Component {
       } else {
         index = parseInt(index + Math.round(diff / step))
       }
+      if (index < 0)
+        index = 0;
     } else {
       index = parseInt(index + Math.round(diff / step))
     }
